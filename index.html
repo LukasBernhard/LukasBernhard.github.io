@@ -4,11 +4,17 @@
 	<head><meta http-equiv="X-UA-Compatible" content="IE=10" />
 		<script type="text/jscript">
 			window.external.InitScriptInterface();
+            var printCounter = 0;
 
+            function logOutput(msg) {
+                document.getElementById("output").value = msg;
+            }
             function printing(data){
                 dPrinterName = "Posiflex PP7600 Printer";
                 dPrinter = SiteKiosk.Printer.FindPrinter(dPrinterName);
-                dPrinter.PrintDocument("Arial", 80, printString, "", "", false);
+                dPrinter.PrintDocument("Arial", 80, data, "", "", false);
+                printCounter = printCounter + 1;
+                logOutput("Printing: " + str(printCounter));
             }
             function onClickPrint(){
                 var printString = 'A rather long string of English text, an error message \
@@ -21,6 +27,7 @@
             }
 
             var bardcodeCallback = function (data, deviceName){
+                logOutput("read from scanner: " + str(data));
                 var printString = str(data) + '\n\n';
                 printString += str(deviceName);
                 printing(printString);
@@ -29,6 +36,7 @@
             function onClickRegisterBarcode(){
                 var deviceName = "barcode";
                 SiteKiosk.RootApp.registerForDeviceData(deviceName, bardcodeCallback);
+                logOutput("Registered Barcode Scanner");
             }
 		</script>
 		
@@ -40,6 +48,9 @@
         </div>
         <div>
             <button onclick="onClickRegisterBarcode()">RegisterBarcode</button>
+        </div>
+        <div>
+            <p id="output">Output Field</p>
         </div>
 	</body>
 </html>
