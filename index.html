@@ -11,12 +11,13 @@
                 dPrinter.PrintDocument("Arial", 80, data, "", "", false);
             }
             function onClickPrint(){
-                var printString = 'A rather long string of English text, an error message \
-                actually that just keeps going and going -- an error \
-                message to make the Energizer bunny blush (right through \
-                those Schwarzenegger shades)! Where was I? Oh yes, \
-                you\'ve got an error and all the extraneous whitespace is \
-                just gravy.  Have a nice day.'
+                var printString = 'A rather long string of English text, \n \
+an error message actually that just keeps going and going \n \
+-- an error message to make the Energizer bunny blush \n \
+(right through those Schwarzenegger shades)! \n \
+Where was I? Oh yes, you\'ve got an error \n \
+and all the extraneous whitespace is just gravy.  \n \
+Have a nice day.'
                 printing(printString);
             }
 
@@ -26,11 +27,8 @@
                 printString += '' + deviceName;
                 printing(printString);
             }
-
-            function onClickRegisterBarcode(){
-                var deviceName = "barcode";
-                SiteKiosk.RootApp.registerForDeviceData(deviceName, bardcodeCallback);
-            }
+            var deviceName = "barcode";
+            SiteKiosk.RootApp.registerForDeviceData(deviceName, bardcodeCallback);
 		</script>
 		
 		<title>Testing</title>
@@ -40,7 +38,6 @@
 	.container {
 	  height: 200px;
 	  position: relative;
-	  border: 3px solid green;
 	}
 
 	.vertical-center {
@@ -56,11 +53,6 @@
     <div class="container">
         <div class="vertical-center">
             <button onclick="onClickPrint()" style="height:200px;width:200px">Print me</button>
-        </div>
-    </div>
-    <div class="container">
-        <div class="vertical-center">
-            <button onclick="onClickRegisterBarcode()" style="height:200px;width:200px">RegisterBarcode</button>
         </div>
     </div>
 </body>
