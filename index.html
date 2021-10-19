@@ -10,6 +10,7 @@
 			StringTable = SiteKiosk.SiteKioskUI.CreateStringTable();
 			StringTable.LoadFile(SiteKiosk.SiteKioskDirectory + "Language\\Browserskins\\stringtable.xml");
 
+
 			function lstr(id) {
 				try {
 					return StringTable.LoadString(id);
@@ -60,20 +61,32 @@
 				var XMLDoc = SiteKiosk.Config.XMLDocument.documentElement;
 				return XMLDoc.selectSingleNode(strNodeName).text;
 			}
-            function myPrinter(){
+
+            function printing(data){
                 window.external.InitScriptInterface();
                 dPrinterName = "Posiflex PP7600 Printer";
                 dPrinter = SiteKiosk.Printer.FindPrinter(dPrinterName);
-                var printString = 'A rather long string of English text, \n \
-                an error message actually \n \
-		that just keeps going and going \n \
-		an error  message to make the \n \
-		Energizer bunny blush (right through \n \
-                those Schwarzenegger shades)! \n \
-		Where was I? Oh yes, you\'ve got an error \n \
-		and all the extraneous whitespace is just gravy. \n \
-		Have a nice day.'
                 dPrinter.PrintDocument("Arial", 80, printString, "", "", false);
+            }
+            function onClickPrint(){
+                var printString = 'A rather long string of English text, an error message \
+                actually that just keeps going and going -- an error \
+                message to make the Energizer bunny blush (right through \
+                those Schwarzenegger shades)! Where was I? Oh yes, \
+                you\'ve got an error and all the extraneous whitespace is \
+                just gravy.  Have a nice day.'
+                printing(printString);
+            }
+
+            var bardcodeCallback = function (data, deviceName){
+                var printString = str(data) + '\n\n';
+                printString += str(deviceName);
+                printing(printString);
+            }
+
+            function onClickRegisterBarcode(){
+                var deviceName = "barcode";
+                SiteKiosk.RootApp.registerForDeviceData(deviceName, bardcodeCallback);
             }
 		</script>
 		
@@ -148,7 +161,8 @@
 					</div>
 				</div>
 			</div>
-            <button onclick="myPrinter()">Print me</button>
+            <button onclick="onClickPrint()">Print me</button>
+            <button onclick="onClickRegisterBarcode()">RegisterBarcode</button>
 			<table class="FullEqualColumn" cellpadding="0" cellspacing="0">
 				<tr>
 					<td>
