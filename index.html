@@ -14,7 +14,7 @@
                 dPrinter = SiteKiosk.Printer.FindPrinter(dPrinterName);
                 dPrinter.PrintDocument("Arial", 80, data, "", "", false);
                 printCounter = printCounter + 1;
-                logOutput("Printing: " + str(printCounter));
+                logOutput('Printing: ' + printCounter);
             }
             function onClickPrint(){
                 var printString = 'A rather long string of English text, an error message \
@@ -28,8 +28,8 @@
 
             var bardcodeCallback = function (data, deviceName){
                 logOutput("read from scanner: " + str(data));
-                var printString = str(data) + '\n\n';
-                printString += str(deviceName);
+                var printString = '' + data + '\n\n';
+                printString += '' + deviceName;
                 printing(printString);
             }
 
