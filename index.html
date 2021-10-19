@@ -4,17 +4,11 @@
 	<head><meta http-equiv="X-UA-Compatible" content="IE=10" />
 		<script type="text/jscript">
 			window.external.InitScriptInterface();
-            var printCounter = 0;
 
-            function logOutput(msg) {
-                document.getElementById("output").value = msg;
-            }
             function printing(data){
                 dPrinterName = "Posiflex PP7600 Printer";
                 dPrinter = SiteKiosk.Printer.FindPrinter(dPrinterName);
                 dPrinter.PrintDocument("Arial", 80, data, "", "", false);
-                printCounter = printCounter + 1;
-                logOutput('Printing: ' + printCounter);
             }
             function onClickPrint(){
                 var printString = 'A rather long string of English text, an error message \
@@ -36,21 +30,38 @@
             function onClickRegisterBarcode(){
                 var deviceName = "barcode";
                 SiteKiosk.RootApp.registerForDeviceData(deviceName, bardcodeCallback);
-                logOutput("Registered Barcode Scanner");
             }
 		</script>
 		
 		<title>Testing</title>
 	</head>
-	<body>
-        <div> 
-            <button onclick="onClickPrint()">Print me</button>
+
+<style>
+	.container {
+	  height: 200px;
+	  position: relative;
+	  border: 3px solid green;
+	}
+
+	.vertical-center {
+	  margin: 0;
+	  position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+	}
+</style>
+<body>
+    <div class="container">
+        <div class="vertical-center">
+            <button onclick="onClickPrint()" style="height:200px;width:200px">Print me</button>
         </div>
-        <div>
-            <button onclick="onClickRegisterBarcode()">RegisterBarcode</button>
+    </div>
+    <div class="container">
+        <div class="vertical-center">
+            <button onclick="onClickRegisterBarcode()" style="height:200px;width:200px">RegisterBarcode</button>
         </div>
-        <div>
-            <p id="output">Output Field</p>
-        </div>
-	</body>
+    </div>
+</body>
 </html>
