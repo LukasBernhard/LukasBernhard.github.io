@@ -1,61 +1,117 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<title>Payment Tester</title>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head><meta http-equiv="X-UA-Compatible" content="IE=10" />
-		<script type="text/jscript">
-			window.external.InitScriptInterface();
+	<head>
+		<style>
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
 
-            function printing(data){
-                dPrinterName = "Posiflex PP7600 Printer";
-                dPrinter = SiteKiosk.Printer.FindPrinter(dPrinterName);
-                dPrinter.PrintDocument("Arial", 100, data, "", "", false);
-            }
-            function onClickPrint(){
-                var printString = 'A rather long string of English text, \n \
-an error message actually that \n \
-just keeps going and going \n \
-an error message to make \n \
-the Energizer bunny blush \n \
-(right through those Schwarzenegger shades)! \n \
-Where was I? \n \
-Oh yes, you\'ve got an error \n \
-and all the extraneous whitespace is just gravy.  \n \
-Have a nice day.'
-                printing(printString);
-            }
-
-            var bardcodeCallback = function (data, deviceName){
-                var printString = '' + data + '\n\n';
-                printString += '' + deviceName;
-                printing(printString);
-            }
-            var deviceName = "barcode";
-            SiteKiosk.RootApp.registerForDeviceData(deviceName, bardcodeCallback);
-		</script>
-		
-		<title>Testing</title>
+			th,
+			td {
+				padding: 15px;
+			}
+		</style>
 	</head>
 
-<style>
-	.container {
-	  height: 200px;
-	  position: relative;
-	}
+	<body>
+		<button id="createTransaction" onclick="createTransaction();">Create Transaction</button>
+		<table>
+			<tbody id="transactions">
+				<tr>
+					<th>Id</th>
+					<th>Name</th>
+					<th>Value</th>
+					<th>Status</th>
+					<th>Action/Data</th>
+				</tr>
+			</tbody>
+		</table>
 
-	.vertical-center {
-	  margin: 0;
-	  position: absolute;
-      top: 50%;
-      left: 50%;
-      -ms-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
-	}
-</style>
-<body>
-    <div class="container">
-        <div class="vertical-center">
-            <button onclick="onClickPrint()" style="height:200px;width:200px">Print me</button>
-        </div>
-    </div>
-</body>
+		<script>
+			"use strict";
+
+			createZvtPlugin();
+
+			__siteKiosk.payment.on(__siteKiosk.payment.events.transactionCreated, transactionCreated);
+			__siteKiosk.payment.on(__siteKiosk.payment.events.transactionCancelled, transactionCancelled);
+			__siteKiosk.payment.on(__siteKiosk.payment.events.transactionCompleted, transactionCompleted);
+
+			let defaultCurrency = __siteKiosk.payment.defaultCurrency;
+			if (!defaultCurrency) defaultCurrency = __siteKiosk.payment.registerCurrency("Euro", "€", 123, true);
+
+			let transactionNumber = 0;
+			const transactions = [];
+			// eslint-disable-next-line no-unused-vars
+			function createTransaction() {
+				transactionNumber++;
+				__siteKiosk.payment.createTransaction(defaultCurrency, 10.0, `Transaction ${transactionNumber}`, null);
+			}
+
+			__siteKiosk.payment.transactions.forEach(transactionCreated);
+
+			function createZvtPlugin() {
+				if (__siteKiosk.plugins.findByName("ZvtPaymentPlugin")) return;
+
+				const pluginConfig = {
+					printerName: "",
+					fontFamilyName: "Tamoha",
+					fontSize: 10,
+					lineHeight: 15,
+				};
+
+				__siteKiosk.plugins.loadPluginByName("ZvtPaymentPlugin", pluginConfig);
+			}
+
+			function transactionCreated(transaction) {
+				const transactionsDom = document.getElementById("transactions");
+				const transactionInfo = { transaction };
+				transactionInfo.dom = document.createElement("tr");
+				transactionInfo.dom.innerHTML = `
+				<td>${transaction.id}</td>
+				<td>${transaction.name}</td>
+				<td>${transaction.value * 0.01}${transaction.currency.symbol}</td>
+				<td id="status">${transaction.status}</td>
+				<td id="actions">
+					<button id="pay">Pay</button>
+					<button id="cancel">Cancel</button>
+				</td>
+				`;
+
+				transactionInfo.dom.querySelector("#pay").onclick = () => {
+					transaction.complete();
+				};
+				transactionInfo.dom.querySelector("#cancel").onclick = () => {
+					transaction.cancel();
+				};
+
+				transactionsDom.appendChild(transactionInfo.dom);
+				transactions.push(transactionInfo);
+
+				updateTransactionData(transaction);
+			}
+
+			function transactionCancelled(transaction) {
+				updateTransactionData(transaction);
+			}
+
+			function transactionCompleted(transaction) {
+				updateTransactionData(transaction);
+			}
+
+			function updateTransactionData(transaction) {
+				const transactionInfo = transactions.find((info) => info.transaction.id === transaction.id);
+
+				transactionInfo.dom.querySelector("#status").innerText = transaction.transactionStatus[transaction.status];
+				if (transaction.status !== transaction.transactionStatus.pending)
+					transactionInfo.dom.querySelector("#actions").innerHTML = "";
+				if (transaction.status === transaction.transactionStatus.completed) {
+					transactionInfo.dom.querySelector("#actions").innerText = JSON.stringify(transaction.completionData, null, 1);
+				}
+			}
+		</script>
+	</body>
 </html>
