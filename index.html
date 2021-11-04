@@ -57,6 +57,8 @@
 				if (__siteKiosk.plugins.findByName("ZvtPaymentPlugin")) return;
 
 				const pluginConfig = {
+					comPort: 6,
+					baud: 9600,
 					printerName: "",
 					fontFamilyName: "Tamoha",
 					fontSize: 10,
